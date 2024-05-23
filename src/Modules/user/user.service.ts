@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -47,11 +48,18 @@ export class UserService {
   }
 
   async createUser(createUserDto: CreateUserDTO) {
-    const createdUser = await this.userModel.create(createUserDto);
+    const emailExist = await this.userModel.findOne({
+      email: createUserDto.email,
+    });
+
+    if (emailExist) {
+      throw new ConflictException('Email already exists');
+    }
+
+    await this.userModel.create(createUserDto);
 
     return {
-      success: 'User created successfully!',
-      createdUser,
+      message: 'User created successfully!',
     };
   }
 
@@ -61,20 +69,20 @@ export class UserService {
     const user = await this.userModel.findOne({ email }, '+password');
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Email not found. Please create an account ');
     }
 
     const passwordMatch = await compare(password, user.password);
 
     if (!passwordMatch) {
-      throw new UnauthorizedException('invalid credentials');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const accessToken = await this.jwtService.signAsync(
       {
         id: user.id,
       },
-      { expiresIn: '60s' },
+      { expiresIn: '30s' },
     );
 
     const refreshToken = await this.jwtService.signAsync({
@@ -97,7 +105,8 @@ export class UserService {
     });
 
     return {
-      token: accessToken,
+      access_token: accessToken,
+      refresh_token: refreshToken,
     };
   }
 
@@ -117,15 +126,14 @@ export class UserService {
       const generatedAccessToken = await this.jwtService.signAsync(
         { id },
         {
-          expiresIn: '60s',
+          expiresIn: '30s',
         },
-        
       );
 
       response.status(200);
 
       return {
-        generatedAccessToken,
+        access_token: generatedAccessToken,
       };
     } catch (error) {
       console.log(error);

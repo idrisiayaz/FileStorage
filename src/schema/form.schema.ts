@@ -17,6 +17,9 @@ export class Form {
   mimetype: string;
 
   @Prop()
+  documentType?: string;
+
+  @Prop()
   buffer: Buffer;
 
   @Prop()

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -14,9 +15,10 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { AccountLoginDTO } from './dto/login-user.dto';
-import { Request, Response, response } from 'express';
+import { Request, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FormService } from './form.service';
+import { shareDocumentDTO } from './dto/share-document.dto';
 
 @Controller('user')
 export class UserController {
@@ -56,6 +58,11 @@ export class UserController {
   ) {
     const refreshToken = request.cookies['refresh_token'];
 
+    if (!refreshToken) {
+      console.log('refresh token not found in refresh query');
+      throw new UnauthorizedException('refresh token not found!!!');
+    }
+
     return this.userService.refresh(refreshToken, response);
   }
 
@@ -72,19 +79,36 @@ export class UserController {
   uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Req() request: Request,
-    @Res({passthrough: true}) response: Response,
+    @Res({ passthrough: true }) response: Response,
   ) {
     return this.formService.upload(file, request);
   }
 
   @Get('documents')
-  getDocument(@Req() request: Request,
-  @Res({passthrough: true}) response: Response) {
+  getDocument(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     return this.formService.getDocuments(request);
   }
 
   @Get('download')
-  download(@Query('id') id:string) {
-    return this.formService.download(id);
+  download(@Query('id') id: string, @Res() response: Response) {
+    return this.formService.download(id, response);
+  }
+
+  @Delete('delete')
+  deleteDocument(@Query('id') id: string) {
+    return this.formService.deleteDocument(id);
+  }
+
+  @Post('share')
+  shareDocument(@Body() body, @Req() request: Request) {
+    return this.formService.shareDocument(body, request);
+  }
+
+  @Get('sharedDoc')
+  getSharedDocument(@Req() request: Request) {
+    return this.formService.getSharedDocument(request);
   }
 }
