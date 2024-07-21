@@ -9,8 +9,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Request, Response } from 'express';
 import { Model } from 'mongoose';
 import { FORM_MODEL, FormDocument } from 'src/schema/form.schema';
-import { TOKEN_MODEL, TokenDocument } from 'src/schema/token.schema';
-import { shareDocumentDTO } from './dto/share-document.dto';
 import { USER_MODEL, UserDocument } from 'src/schema/user.schema';
 import {
   SHARE_DOC_MODEL,

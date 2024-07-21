@@ -18,7 +18,6 @@ import { AccountLoginDTO } from './dto/login-user.dto';
 import { Request, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FormService } from './form.service';
-import { shareDocumentDTO } from './dto/share-document.dto';
 
 @Controller('user')
 export class UserController {
