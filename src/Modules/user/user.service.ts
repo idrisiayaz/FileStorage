@@ -75,7 +75,7 @@ export class UserService {
     const passwordMatch = await compare(password, user.password);
 
     if (!passwordMatch) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new NotFoundException('Invalid credentials');
     }
 
     const accessToken = await this.jwtService.signAsync(
